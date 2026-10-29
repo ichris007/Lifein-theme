@@ -34,7 +34,12 @@
  
   /*------------------------缩小已固定标签页宽度 Shrink Pinned Tabs-------------------------------*/
 body {
-  --tab-max-width: 110px !important; /* 主题变量覆盖 */
+  /* Style Settings › Tab style › Tab width（--main-tab-width）；兜底 110px = 原硬编码值。
+     app.css 的 .mod-root .workspace-tab-header 以 width: var(--tab-width)（原生 200px）
+     作弹性基准、max-width 只封顶：只改 max-width 时宽度永远卡在 200px，
+     所以两者一起跟随滑块。 */
+  --tab-width: var(--main-tab-width, 110px) !important;
+  --tab-max-width: var(--main-tab-width, 110px) !important; /* 主题变量覆盖 */
 }
 
 .workspace-tab-header.mod-pinned {
@@ -7136,6 +7141,21 @@ body {
 }
 
 /* --------------------------------------------------------------------------
+   N4·c Windows / Linux hidden frame: window buttons (minimize / maximize / close)
+   app.css keeps .titlebar in the DOM there (transparent, pointer-events: none)
+   and paints .titlebar-button-container.mod-right with --titlebar-background,
+   a solid colour that never matches the glass / Baseline bar it sits on, so
+   the 126px button block shows up as a differently coloured rectangle in the
+   top-right corner. macOS hides .titlebar entirely, so this is Windows / Linux
+   only. Make the block transparent and let the buttons sit on whatever bar is
+   underneath; per-button hover colours still come from app.css.
+   Specificity (0,5,1) beats app.css's focused-state rule (0,5,0).
+   -------------------------------------------------------------------------- */
+body:is(.mod-windows, .mod-linux).is-hidden-frameless:not(.is-fullscreen) .titlebar-button-container.mod-right {
+  background-color: transparent;
+}
+
+/* --------------------------------------------------------------------------
    N4·a 右侧栏开合按钮（.sidebar-toggle-button.mod-secondary.mod-right）
    macOS 无边框下 app.css 把它
       position:fixed; top:0; inset-inline-end:var(--frame-right-space);
@@ -11019,7 +11039,8 @@ body.layout-baseline:not(.is-mobile) .workspace .mod-root .workspace-tabs:not(.m
      用户截图实测标签高 36px（48px 条带 - 实测 12px 上间隙），觉得偏高，
      这里把上内边距 8px → 12px（多出来的 4px 来自 app.css 自己给容器加的
      顶部内距），标签落到 32px，底边仍贴着条带底边 / 内容卡顶边。 */
-  padding: 12px calc(var(--tab-radius, 8px) + 4px) 0;
+  /* 上内边距改由 Style Settings › Tab style › Tab top gap（--baseline-tab-gap）控制，兜底 12px */
+  padding: var(--baseline-tab-gap, 12px) calc(var(--tab-radius, 8px) + 4px) 0;
   gap: 8px;
   /* 条带容器本身是 align-items:center ⇒ 只写 align-items 不够，
      内层盒子自己也得撑满，标签才有“撑到条带底边”的参照高度。 */
@@ -11155,6 +11176,54 @@ body.layout-baseline:not(.is-mobile) .workspace .mod-root .view-header {
       元素并把 border-top-color 置为 transparent，普通特异度压不住。 */
 body.layout-baseline:not(.is-mobile) .workspace .workspace-split:is(.mod-left-split, .mod-right-split) .workspace-tab-header-container {
   border-top: 1px solid var(--baseline-sd-topline) !important;
+}
+
+/* ⑩ Baseline: a top bar tagged mod-top-left/right-space must not drop to 40px
+   ---------------------------------------------------------------
+   The「等高 tab 条」block above locks `.mod-top-left-space` / `.mod-top-right-space`
+   containers (and the right toggle button) to 40px, assuming those classes only
+   mark the side-dock bars. Obsidian puts them on whichever top tab group is
+   left-most / right-most in the window, so with a sidebar collapsed (or the
+   hover sidebar hidden) the main tab bar carries them and shrinks to 40px
+   while Baseline sets --header-height to 48px: tabs drop to 24px, and on
+   Windows / Linux the hidden-frame title bar (window buttons, app.css:
+   `.is-hidden-frameless .titlebar { height: calc(var(--header-height) - 1px) }`)
+   is 47px tall and sticks out of the bar. All platforms: the main bar always
+   follows --header-height. */
+body.layout-baseline:not(.is-mobile) .mod-root .workspace-tabs.mod-top:is(.mod-top-left-space, .mod-top-right-space) > .workspace-tab-header-container {
+  height: var(--header-height);
+}
+body.layout-baseline:not(.is-mobile) .mod-root .workspace-tabs.mod-top.mod-top-right-space .sidebar-toggle-button {
+  height: calc(var(--header-height) - 1px) !important;
+  min-height: 0;
+  max-height: none;
+}
+/* ⑩-b Windows / Linux: side-dock top bars follow the 48px header too
+   With a dock open, its top bar is what the 47px title bar overlays, so it
+   must be as tall as the window buttons. macOS hides the title bar and keeps
+   the 40px dock bars of the original design. */
+body.layout-baseline:not(.is-mobile):is(.mod-windows, .mod-linux) .mod-sidedock .workspace-tabs.mod-top > .workspace-tab-header-container {
+  height: var(--header-height);
+}
+body.layout-baseline:not(.is-mobile):is(.mod-windows, .mod-linux) .mod-sidedock .workspace-tabs.mod-top .sidebar-toggle-button {
+  height: calc(var(--header-height) - 1px) !important;
+  min-height: 0;
+  max-height: none;
+}
+/* ⑩-c Windows / Linux: side-dock icons keep a 28 × 28 round shape in the taller bar
+   app.css lets .workspace-tab-header-container-inner stretch to the bar
+   (.workspace-tab-header-inner is height: 100%), so the icon pills were
+   28 × 26 in the 40px bar and become 28 × 34 ellipses at 48px. macOS gets a
+   fixed shape from the Cupertino B2 block (padding 6px), which is gated to
+   .mod-macos; give the dock bars the same geometry here, centred in the bar.
+   Docks only (.mod-sidedock): the main bar's tab geometry is set in ③ above. */
+body.layout-baseline:not(.is-mobile):is(.mod-windows, .mod-linux) .mod-sidedock .workspace-tabs.mod-top > .workspace-tab-header-container > .workspace-tab-header-container-inner {
+  align-self: center;
+  margin-block: 0;
+  padding-block: 0;
+}
+body.layout-baseline:not(.is-mobile):is(.mod-windows, .mod-linux) .mod-sidedock .workspace-tabs.mod-top .workspace-tab-header-inner {
+  padding: 6px;
 }
 
 /* ---------- layout-frame ---------- */
@@ -13664,6 +13733,30 @@ settings:
         default: 2
         min: 1
         max: 6
+        step: 1
+        format: px
+    -
+        id: main-tab-width
+        title: Tab width
+        title.zh: 标签页宽度
+        description: Width of a document tab in the main area; tabs shrink when the bar is full. Obsidian's own default is 200px; Lifein ships 110px for a compact tab bar.
+        description.zh: 主区文档标签页的宽度；标签条放不下时自动收窄。Obsidian 原生默认 200px；Lifein 默认 110px（紧凑标签栏）。
+        type: variable-number-slider
+        default: 110
+        min: 80
+        max: 400
+        step: 10
+        format: px
+    -
+        id: baseline-tab-gap
+        title: Tab top gap (Baseline layout)
+        title.zh: 标签顶部间隙（Baseline 布局）
+        description: Space between the top of the 48px tab bar and the tabs in the Baseline layout; smaller means taller tabs (12px gives 32px tabs, 4px gives 40px). Other layouts are unaffected.
+        description.zh: Baseline 布局下 48px 标签条顶部到标签之间的间隙；越小标签越高（12px 为 32px 高的标签，4px 为 40px）。其他布局不受影响。
+        type: variable-number-slider
+        default: 12
+        min: 0
+        max: 16
         step: 1
         format: px
     -

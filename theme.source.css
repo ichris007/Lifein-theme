@@ -7149,9 +7149,15 @@ body {
    top-right corner. macOS hides .titlebar entirely, so this is Windows / Linux
    only. Make the block transparent and let the buttons sit on whatever bar is
    underneath; per-button hover colours still come from app.css.
-   Specificity (0,5,1) beats app.css's focused-state rule (0,5,0).
-   -------------------------------------------------------------------------- */
-body:is(.mod-windows, .mod-linux).is-hidden-frameless:not(.is-fullscreen) .titlebar-button-container.mod-right {
+   Specificity (0,6,1) beats app.css's focused-state rule (0,5,0).
+
+   ⚠️ 限定 .layout-baseline（2026-10-31 加）：上面「实心块和底下条带对不上」
+   只在 Baseline 成立 —— 那里条带是玻璃（--sidedock-glass-bg + backdrop-filter），
+   而按钮块是实色 --titlebar-background，所以露出一块矩形。frame 布局相反：
+   L11260 那条给同一个元素写了 border-radius + overflow:hidden，**就是要那块
+   实色撑出圆角按钮簇**，在这里改成 transparent 会把它的形状抹掉。默认（无布局类）
+   布局未在 Windows 上验证过，一律不动 ⇒ 维持原状。 */
+body.layout-baseline:is(.mod-windows, .mod-linux).is-hidden-frameless:not(.is-fullscreen) .titlebar-button-container.mod-right {
   background-color: transparent;
 }
 

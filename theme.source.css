@@ -7297,7 +7297,7 @@ body.cb-style-lifein {
   --lif-green:      var(--color-green-solid, rgb(var(--color-green-rgb, 52 199 89)));
   --lif-blue:       var(--color-blue-solid, rgb(var(--color-blue-rgb, 0 136 255)));
   --lif-yellow:     var(--color-yellow-solid, rgb(var(--color-yellow-rgb, 232 168 38)));
-  --lif-red:        var(--color-red-solid, rgb(var(--color-green-rgb, 255 56 60)));
+  --lif-red:        var(--color-red-solid, rgb(var(--color-red-rgb, 255 56 60)));
   --lif-done-text:  var(--text-faint);
   --lif-wait-text:  var(--text-muted);
   /* 悬停柔光 / 勾选光晕取这个色；默认（绿）由 var() 兜底提供 */

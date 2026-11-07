@@ -7018,8 +7018,11 @@ body.is-popout-modal {
    所以这一节做的是 MathJax 主题化，不是 KaTeX。
    -------------------------------------------------------------------------- */
 
-/* 阅读模式的块级公式：极淡的底 + 圆角 + 横向可滚动（长公式不再撑破版心） */
+/* 阅读模式的块级公式：极淡的底 + 圆角 + 横向可滚动（长公式不再撑破版心）
+   .math-block is an inline <span> here; display: block stops it splitting
+   into empty slivers above and below the equation. */
 .markdown-rendered .math-block {
+  display: block;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
@@ -7034,14 +7037,15 @@ body.is-popout-modal {
 }
 
 /* 源码（Live Preview）模式：块级公式同时带 .cm-embed-block，
-   本主题已有「嵌入块卡片」样式（3px 强调色左边框 + 淡底 + 阴影，见 L1601 附近），
-   那条带 !important，这里不跟它抢背景 —— 只补横向滚动、并把 app.css 的
-   padding: 1em 0 复位（否则和 .cm-embed-block 的 10px 内边距叠成双倍留白）。 */
+   本主题已有「嵌入块卡片」样式（3px 强调色左边框 + 淡底 + 阴影，见 L2785 附近），
+   那条带 !important，这里不跟它抢背景。 */
 .markdown-source-view .math-block {
   max-width: 100%;
 }
 
-.markdown-source-view.mod-cm6 .math-block > mjx-container {
+/* Keep app.css's padding: 1em 0 on the scrolling <mjx-container> (without it
+   glyphs overflow and each equation gets a scroll bar); trim the card instead. */
+.markdown-source-view.mod-cm6 .math-block.cm-embed-block {
   padding-block: 0;
 }
 

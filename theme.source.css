@@ -335,6 +335,7 @@ body.callout-sleek {
 [data-callout=blank-container],
 [data-callout=multi-column]) > .callout-content {
   padding: 0.5em 0.8em 0.6em;
+  margin-bottom: 0; /* own padding; opts out of the overhang rule below */
 }
 .callout[data-callout-metadata*=sleek]:not([data-callout-metadata*=revert],
 [data-callout=blank-container],
@@ -370,6 +371,7 @@ body.callout-sleek .callout:not([data-callout-metadata*=sleek-block],
 [data-callout=blank-container],
 [data-callout=multi-column]) > .callout-content {
   padding: 0.5em 0.8em 0.6em;
+  margin-bottom: 0; /* own padding; opts out of the overhang rule below */
 }
 body.callout-sleek .callout:not([data-callout-metadata*=sleek-block],
 [data-callout-metadata*=sleek-vanilla-normal],
@@ -378,6 +380,15 @@ body.callout-sleek .callout:not([data-callout-metadata*=sleek-block],
 [data-callout=multi-column]) .list-collapse-indicator {
   margin-left: -35px;
   padding-right: 3px;
+}
+
+/* ---------- All styles: inline math on the last line ----------
+   .callout-content scrolls (app.css overflow-x: auto) and has no padding; with the
+   1px paragraph margin, inline math pokes out and adds a scroll bar. Let its padding
+   reach into the callout's bottom padding; the negative margin keeps the layout. */
+body .callout:not([data-callout=blank-container], [data-callout=multi-column]) > .callout-content {
+  padding-bottom: var(--size-4-3, 12px);
+  margin-bottom: calc(-1 * var(--size-4-3, 12px));
 }
 
 /* ==========================================================================

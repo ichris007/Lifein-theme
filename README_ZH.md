@@ -131,3 +131,18 @@ Copyright © 2026 Chris
 ---
 
 <p align="center">用 Lifein，让界面退后一步，让文字向前一步。</p>
+
+---
+<div align="center">
+
+### ☕ 支持作者
+
+如果这个项目给你带来了帮助，欢迎请我喝杯咖啡 ☕
+
+微信扫码↓
+
+<img src="https://github.com/ichris007/ichris007/blob/main/images/wechat_donate_qrcode0.png" width="300" alt="微信赞赏码">
+
+感谢每一份支持！
+
+</div>
